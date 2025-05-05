@@ -1,0 +1,20 @@
+{
+  "name": "2800-assign1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "idex.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "mongodb": "^6.16.0",
+    "node": "^22.15.0"
+  }
+}
