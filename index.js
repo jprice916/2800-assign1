@@ -98,7 +98,7 @@ const getRandomImage = () => {
     const images = ['cat.PNG, dog.png'];
 
     const randomIndex = Math.floor(Math.random() * images.length);
-    return `/public/${images[randomIndex]}`;
+    return `${images[randomIndex]}`;
 };
 
 app.get('/', (req, res) => {
