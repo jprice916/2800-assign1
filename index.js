@@ -125,21 +125,7 @@ app.get('/', (req, res) => {
         `);
 });
 
-app.get('/signup', requireNoAuth, (req, res) => {
-    const html = `
-    <h1>sign up</h1>
-    <form action='/signupSubmit' method='post'>
-        <input name='name' type='text' placeholder='name' required>
-            <br>
-        <input name='email' type='email' placeholder='email' required>
-            <br>
-        <input name='password' type='password' placeholder='password' required>
-            <br>
-        <button type='submit'>Submit</button>
-    </form>
-    `;
-    res.send(html);
-});
+
 
 app.post('/signupSubmit', requireNoAuth, async (req, res) => {
     const { name, email, password } = req.body;
@@ -197,20 +183,22 @@ app.post('/signupSubmit', requireNoAuth, async (req, res) => {
         res.status(500).send("Internal Server Error during signup.");
     }
 });
-
-app.get('/login', requireNoAuth, (req, res) => {
+app.get('/signup', requireNoAuth, (req, res) => {
     const html = `
-    <h1>Log In</h1>
-    <form action='/loginSubmit' method='post'>
+    <h1>sign up</h1>
+    <form action='/signupSubmit' method='post'>
+        <input name='name' type='text' placeholder='name' required>
+            <br>
         <input name='email' type='email' placeholder='email' required>
-        <br>
+            <br>
         <input name='password' type='password' placeholder='password' required>
-        <br>
+            <br>
         <button type='submit'>Submit</button>
     </form>
-        `;
+    `;
     res.send(html);
 });
+
 
 app.post('/loginSubmit', requireNoAuth, async (req, res) => {
     const { email, password } = req.body;
@@ -254,7 +242,19 @@ app.post('/loginSubmit', requireNoAuth, async (req, res) => {
         console.error('Login database/bcrypt error: ', err);
     }
 });
-
+app.get('/login', requireNoAuth, (req, res) => {
+    const html = `
+    <h1>Log In</h1>
+    <form action='/loginSubmit' method='post'>
+        <input name='email' type='email' placeholder='email' required>
+        <br>
+        <input name='password' type='password' placeholder='password' required>
+        <br>
+        <button type='submit'>Submit</button>
+    </form>
+        `;
+    res.send(html);
+});
 app.get('/members', requireAuth, (req, res) => {
     const randomImageUrl = getRandomImage();
 
