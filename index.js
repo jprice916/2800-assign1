@@ -36,6 +36,7 @@ const node_session_secret = process.env.NODE_SESSION_SECRET;
 
 const mongoUri = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}?retryWrites=true&w=majority`;
 
+
 const client = new MongoClient(mongoUri, {
     serverApi: {
         version: ServerApiVersion.v1,
@@ -95,10 +96,10 @@ const requireNoAuth = (req, res, next) => {
 
 const getRandomImage = () => {
 
-    const images = ['IMG_0140.JPG', 'IMG_0518.jpg', 'IMG_0671.jpg', 'IMG_1270.jpg', 'IMG_1598.JPG', 'IMG_2242.JPG', 'IMG_4919.PNG'];
+    const images = ['cat.PNG', 'dog.png'];
 
     const randomIndex = Math.floor(Math.random() * images.length);
-    return `/public/${images[randomIndex]}`;
+    return `${images[randomIndex]}`;
 };
 
 app.get('/', (req, res) => {
@@ -182,7 +183,7 @@ app.post('/signupSubmit', requireNoAuth, async (req, res) => {
             email: email,
             password: hashedPassword
         });
-        console.log("User created:", newUser.insertedId);
+
 
 
         req.session.isAuthenticated = true;
@@ -260,12 +261,11 @@ app.get('/members', requireAuth, (req, res) => {
 
     res.send(`
         <h1>Hello, ${req.session.name}!</h1>
-            <p>Welcome to the members area.</p>
+            <p>this is the member area.</p>
             <br>
-        <img src='${randomImageUrl}' alt='Randy img' style='width: 400px; border: 3px solid black;'>
+        <img src='${randomImageUrl}'>
             <br>
-        <p>Refresh page to see another image</p>
-            <br>
+        
         <a href='/logout'> <button>Logout</button> </a>
         `);
 });
