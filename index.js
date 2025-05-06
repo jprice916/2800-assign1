@@ -104,12 +104,12 @@ const getRandomImage = () => {
 
 app.get('/', (req, res) => {
     let buttons;
-    let greeting = '<h1>Welcome! Please Sign Up or Log In</h1>';
+    let greeting = '<h1>sign up or login</h1>';
 
     if (req.session.isAuthenticated) {
         greeting = `<h1>Hello, ${req.session.name}!</h1>`;
         buttons = `
-        <a href='/members'> <button>Members Area</button> </a>
+        <a href='/members'> <button>Members only</button> </a>
         <br><br>
         <a href='/logout'> <button>Logout</button> </a>
         `;
@@ -128,7 +128,7 @@ app.get('/', (req, res) => {
 
 app.get('/signup', requireNoAuth, (req, res) => {
     const html = `
-    <h1>Create User</h1>
+    <h1>sign up</h1>
     <form action='/signupSubmit' method='post'>
         <input name='name' type='text' placeholder='enter your name' required>
             <br>
@@ -164,16 +164,6 @@ app.post('/signupSubmit', requireNoAuth, async (req, res) => {
     }
 
     try {
-
-        const existingUser = await userCollection.findOne({ email: email });
-        if (existingUser) {
-            console.log("Signup failed: Email already exists.");
-            return res.status(409).send(`
-                Email already registered. <br>
-                <a href="/signup">Try again</a> or <a href="/login">Log in</a>
-            `);
-        }
-
 
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
