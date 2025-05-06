@@ -11,7 +11,7 @@ const { Console } = require('console');
 
 
 const port = process.env.PORT || 8000;
-const path = require('path');
+
 
 const node_session_secret = "8063e70e-0355-402d-bfac-94dd23d12cf1";
 
