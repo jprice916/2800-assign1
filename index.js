@@ -9,7 +9,7 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const saltRounds = 12;
 const app = express();
 const port = process.env.PORT || 3000;
-const expireSession = 1 * 0 * 0 * 0; // 1 hour
+const expireSession = 60 * 60 * 1000; // 1 hour
 
 const requireEnvVars = [
     'MONGODB_USER',
@@ -35,7 +35,6 @@ const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 const node_session_secret = process.env.NODE_SESSION_SECRET;
 
 const mongoUri = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}?retryWrites=true&w=majority`;
-
 
 const client = new MongoClient(mongoUri, {
     serverApi: {
@@ -96,20 +95,20 @@ const requireNoAuth = (req, res, next) => {
 
 const getRandomImage = () => {
 
-    const images = ['cat.PNG', 'dog.png'];
+    const images = ['cat.PNG, dog.png'];
 
     const randomIndex = Math.floor(Math.random() * images.length);
-    return `${images[randomIndex]}`;
+    return `/public/${images[randomIndex]}`;
 };
 
 app.get('/', (req, res) => {
     let buttons;
-    let greeting = '<h1>sign up or login</h1>';
+    let greeting = '<h1>Welcome! Please Sign Up or Log In</h1>';
 
     if (req.session.isAuthenticated) {
         greeting = `<h1>Hello, ${req.session.name}!</h1>`;
         buttons = `
-        <a href='/members'> <button>Members only</button> </a>
+        <a href='/members'> <button>Members Area</button> </a>
         <br><br>
         <a href='/logout'> <button>Logout</button> </a>
         `;
@@ -130,11 +129,11 @@ app.get('/signup', requireNoAuth, (req, res) => {
     const html = `
     <h1>sign up</h1>
     <form action='/signupSubmit' method='post'>
-        <input name='name' type='text' placeholder='enter your name' required>
+        <input name='name' type='text' placeholder='name' required>
             <br>
-        <input name='email' type='email' placeholder='enter your email' required>
+        <input name='email' type='email' placeholder='email' required>
             <br>
-        <input name='password' type='password' placeholder='enter your password' required>
+        <input name='password' type='password' placeholder='password' required>
             <br>
         <button type='submit'>Submit</button>
     </form>
@@ -183,7 +182,7 @@ app.post('/signupSubmit', requireNoAuth, async (req, res) => {
             email: email,
             password: hashedPassword
         });
-
+        console.log("User created:", newUser.insertedId);
 
 
         req.session.isAuthenticated = true;
@@ -260,8 +259,8 @@ app.get('/members', requireAuth, (req, res) => {
     const randomImageUrl = getRandomImage();
 
     res.send(`
-        <h1>Hello, ${req.session.name}!</h1>
-            <p>this is the member area.</p>
+        <h1>Hello, ${req.session.name}</h1>
+            <p>Welcome to the members area.</p>
             <br>
         <img src='${randomImageUrl}'>
             <br>
