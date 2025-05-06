@@ -6,7 +6,9 @@ const express = require("express");
 const session = require("express-session");
 const { Console } = require('console');
 
-
+const app = express();
+const port = process.env.PORT || 8000;
+const path = require('path');
 
 const node_session_secret = "8063e70e-0355-402d-bfac-94dd23d12cf1";
 
@@ -62,3 +64,6 @@ async function submit() {
     
 }
 
+app.listen(port, () => {
+    console.log("Server runs on http://localhost:${port}")
+});
