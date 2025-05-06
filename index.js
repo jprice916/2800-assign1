@@ -95,7 +95,7 @@ const requireNoAuth = (req, res, next) => {
 
 const getRandomImage = () => {
 
-    const images = ['cat.PNG, dog.png'];
+    const images = ['cat.PNG', 'dog.png'];
 
     const randomIndex = Math.floor(Math.random() * images.length);
     return `${images[randomIndex]}`;
