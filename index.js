@@ -165,6 +165,16 @@ app.post('/signupSubmit', requireNoAuth, async (req, res) => {
 
     try {
 
+        const existingUser = await userCollection.findOne({ email: email });
+        if (existingUser) {
+            console.log("Signup failed: Email already exists.");
+            return res.status(409).send(`
+                Email already registered. <br>
+                <a href="/signup">Try again</a> or <a href="/login">Log in</a>
+            `);
+        }
+
+
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
 
