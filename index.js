@@ -9,7 +9,7 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const saltRounds = 12;
 const app = express();
 const port = process.env.PORT || 3000;
-const expireSession = 60 * 60 * 1000; // 1 hour
+const expireSession = 1 * 0 * 0 * 0; // 1 hour
 
 const requireEnvVars = [
     'MONGODB_USER',
@@ -130,11 +130,11 @@ app.get('/signup', requireNoAuth, (req, res) => {
     const html = `
     <h1>Create User</h1>
     <form action='/signupSubmit' method='post'>
-        <input name='name' type='text' placeholder='name' required>
+        <input name='name' type='text' placeholder='enter your name' required>
             <br>
-        <input name='email' type='email' placeholder='email' required>
+        <input name='email' type='email' placeholder='enter your email' required>
             <br>
-        <input name='password' type='password' placeholder='password' required>
+        <input name='password' type='password' placeholder='enter your password' required>
             <br>
         <button type='submit'>Submit</button>
     </form>
