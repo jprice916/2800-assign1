@@ -5,11 +5,16 @@ const bcrypt = require('bcrypt');
 const MongoStore = require('connect-mongo');
 const Joi = require('joi');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const path = require("path");
+
+
 
 const saltRounds = 12;
 const app = express();
 const port = process.env.PORT || 3000;
 const expireSession = 60 * 60 * 1000; // 1 hour
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "app/views"));
 
 const requireEnvVars = [
     'MONGODB_USER',
@@ -95,35 +100,56 @@ const requireNoAuth = (req, res, next) => {
 
 const getRandomImage = () => {
 
-    const images = ['cat.PNG', 'dog.png'];
+    const images = ['./img/cat.PNG', './img/dog.png', './img/bear.PNG'];
 
     const randomIndex = Math.floor(Math.random() * images.length);
     return `${images[randomIndex]}`;
 };
 
 app.get('/', (req, res) => {
-    let buttons;
-    let greeting = '<h1>Welcome! Please Sign Up or Log In</h1>';
-
+    const name  = req.session.name
     if (req.session.isAuthenticated) {
-        greeting = `<h1>Hello, ${req.session.name}!</h1>`;
-        buttons = `
-        <a href='/members'> <button>Members Area</button> </a>
-        <br><br>
-        <a href='/logout'> <button>Logout</button> </a>
-        `;
+        
+        res.render("indexIn", {name})
     } else {
-        buttons = `
-        <a href='/signup'> <button>Sign Up</button> </a>
-        <br><br>
-        <a href='/login'> <button>Log In</button> </a>
-        `;
+    
+        res.render("indexOut")
+        
     }
-    res.send(`
-        ${greeting}
-        ${buttons}
-        `);
+   
 });
+
+
+app.get('/admin', async (req, res) => {
+    if (!req.session.isAuthenticated) {
+        return res.render("login");
+    }
+
+    try {
+        const user = await userCollection.findOne({ email: req.session.email });
+        console.log("b")
+        const users = await userCollection.find().project({ name: 1, email: 1, type: 1 }).toArray();
+        console.log("a")
+        if (user && user.type === "admin") {
+            return res.render("admin", {users: users});
+        } else {
+            console.error("Improper permissions for user:", req.session.email);
+            return res.status(403).send("You are not an admin.");
+        }
+    } catch (err) {
+        console.error("Database error when checking admin:", err);
+        return res.status(500).send("Internal server error.");
+    }
+});
+
+app.get('/update', async (req, res) => {
+    const username = req.query.username;
+    const type = req.query.type;
+    const result = await userCollection.updateOne({name: username}, 
+        {$set: {type: type}});
+
+    res.redirect('/admin')
+})
 
 
 
@@ -166,7 +192,8 @@ app.post('/signupSubmit', requireNoAuth, async (req, res) => {
         const newUser = await userCollection.insertOne({
             name: name,
             email: email,
-            password: hashedPassword
+            password: hashedPassword,
+            type: "reg"
         });
         console.log("User created:", newUser.insertedId);
 
@@ -176,27 +203,16 @@ app.post('/signupSubmit', requireNoAuth, async (req, res) => {
         req.session.email = email;
         req.session.userId = newUser.insertedId;
 
-        res.redirect('/members');
+        res.render('members');
 
     } catch (err) {
         console.error("Signup error:", err);
         res.status(500).send("Internal Server Error during signup.");
+        console.log(err)
     }
 });
 app.get('/signup', requireNoAuth, (req, res) => {
-    const html = `
-    <h1>sign up</h1>
-    <form action='/signupSubmit' method='post'>
-        <input name='name' type='text' placeholder='name' required>
-            <br>
-        <input name='email' type='email' placeholder='email' required>
-            <br>
-        <input name='password' type='password' placeholder='password' required>
-            <br>
-        <button type='submit'>Submit</button>
-    </form>
-    `;
-    res.send(html);
+    res.render('signup')
 });
 
 
@@ -229,44 +245,23 @@ app.post('/loginSubmit', requireNoAuth, async (req, res) => {
             req.session.email = user.email;
             req.session.userId = user._id;
 
-            res.redirect('/members');
+            res.redirect('/members')
         } else {
             console.log(`Login failed for email: ${email}`);
-            res.status(401).send(`
-                Invalid email/password combination.
-                <br><br>
-                <a href='/login'>Try again</a>
-                `);
+            res.redirect('/login')
         }
     } catch (err) {
         console.error('Login database/bcrypt error: ', err);
     }
 });
 app.get('/login', requireNoAuth, (req, res) => {
-    const html = `
-    <h1>Log In</h1>
-    <form action='/loginSubmit' method='post'>
-        <input name='email' type='email' placeholder='email' required>
-        <br>
-        <input name='password' type='password' placeholder='password' required>
-        <br>
-        <button type='submit'>Submit</button>
-    </form>
-        `;
-    res.send(html);
+    res.render("login")
 });
 app.get('/members', requireAuth, (req, res) => {
-    const randomImageUrl = getRandomImage();
-
-    res.send(`
-        <h1>Hello, ${req.session.name}</h1>
-            <p>Welcome to the members area.</p>
-            <br>
-        <img src='${randomImageUrl}'>
-            <br>
-        
-        <a href='/logout'> <button>Logout</button> </a>
-        `);
+    const randIMG = ['./img/cat.PNG', './img/dog.png', './img/bear.PNG'];
+    const name = req.session.name
+    res.render('members', {randIMG, name})
+    
 });
 
 app.get('/logout', (req, res) => {
@@ -280,8 +275,12 @@ app.get('/logout', (req, res) => {
     });
 });
 
+app.get('/404', (req, res) => {
+    res.render('404')
+})
+
 app.use((req, res) => {
-    res.status(404).send("Page not found - 404");
+    res.status(404).redirect('/404')
 });
 
 app.listen(port, () => {

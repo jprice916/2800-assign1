@@ -1,0 +1,15 @@
+<%- include('partials/header') %>
+
+<div>
+
+    <div>List of all users</div>
+    <% for(let i=0; i < users.length; i++) { %>
+            <%- include('partials/user', {user: users[i]}) %>
+        <% } %>
+                
+                
+</div>
+
+<%- include('partials/footer') %>
+
+
